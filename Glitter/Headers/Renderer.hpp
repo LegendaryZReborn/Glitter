@@ -2,17 +2,14 @@
 #define RENDERER_H
 
 #include "SimpleModel.hpp"
-#include "TexturedModel.hpp"
-
+#include "Shader.hpp"
 
 class Renderer
 {
     public:
         Renderer();
         //Renders a SimpleModel to the screen
-        void render(SimpleModel model);
-        //Renders a TexturedModel to the screen
-        void render(TexturedModel model);
+        void render(const SimpleModel& model, Shader& shader);
         //Prepares screen for rendering
         void prepare();
         ~Renderer();

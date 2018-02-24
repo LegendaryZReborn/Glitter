@@ -1,35 +1,47 @@
 #ifndef LOADER_H
 #define LOADER_H
+
 #include "SimpleModel.hpp"
-#include "TexturedModel.hpp"
-#include <glm/glm.hpp>
+#include "Shader.hpp"
+#include <glitter.hpp>
 #include <vector>
 #include <string>
 
 using namespace std;
 
-class Loader{
-    public:
-        Loader();
-        ~Loader();
+class Loader {
+public:
+    Loader();
 
-        //Load data to VAO for an untextured object
-        SimpleModel loadToVao(vector<glm::vec4> vertices);
-        //Load data to VAO for an textured object
-        TexturedModel loadToVao(vector<glm::vec4> vertices, vector<glm::vec2> textures, GLuint texID);
-        //Load texture into texture unit
-        GLuint loadTexture(string filename, GLuint unit);
-        void cleanUp();
+    ~Loader();
 
-    protected:
+    //Load data to VAO for a SimpleModel
+    void loadToVao(SimpleModel &model, Shader& shader);
 
-    private:
-       GLuint createVao();
-       void storeDataInVao(GLuint attributeNum, int size, float * data, int dSize);
+    //Load model from file at path
+    //Returns the meshes represented in the file, each as a SimpleModel in sModels
+    void loadModelFromFile(string path, vector<SimpleModel> &sModels);
 
-       vector<GLuint> vaos;
-       vector<GLuint> vbos;
-       vector<GLuint> textures;
+    //Load texture
+    GLuint loadTexture(string filepath);
+
+    void cleanUp();
+
+private:
+    /*Helper methods*/
+    GLuint createVao();
+
+    void storeDataInVao(GLuint attributeNum, int size, float *data, int dSize);
+
+    ///Processes an aiMesh's data into a SimpleModel and returns it
+    SimpleModel processMesh(aiMesh *mesh, aiMaterial* material);
+
+
+
+    /*Member attributes*/
+    vector<GLuint> vaos;
+    vector<GLuint> vbos;
+    vector<GLuint> textures;
 
 };
 

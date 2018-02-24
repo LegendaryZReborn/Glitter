@@ -16,6 +16,9 @@ class Shader{
 
         void startShader();
         void stopShader();
+        GLuint getProgram();
+        void setUniform1i(string identifier, GLint value);
+        void setUniform1f(string identifier, GLfloat value);
         void cleanUpShader();
 
     protected:

@@ -32,6 +32,18 @@ void Shader::stopShader(){
     glUseProgram(0);
 }
 
+GLuint Shader::getProgram(){
+    return programID;
+}
+
+void Shader::setUniform1i(string identifier, GLint value){
+    glUniform1i(glGetUniformLocation(programID, identifier.c_str()),value);
+}
+
+void Shader::setUniform1f(string identifier, GLfloat value){
+    glUniform1f(glGetUniformLocation(programID, identifier.c_str()),value);
+}
+
 void Shader::cleanUpShader(){
     stopShader();
     glDetachShader(programID, vertexShaderID);

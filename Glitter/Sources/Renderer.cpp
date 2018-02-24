@@ -4,26 +4,17 @@ Renderer::Renderer(){
     //ctor
 }
 
-void Renderer::render(SimpleModel model){
-        /*Render*/
-    glBindVertexArray(model.GetvaoID());
-    glEnableVertexAttribArray(0);
-    glDrawArrays(GL_TRIANGLES, 0, model.GetnumVertices());
-    glDisableVertexAttribArray(0);
-    glBindVertexArray(0);
-}
-
-void Renderer::render(TexturedModel model){
+void Renderer::render(const SimpleModel& model, Shader& shader){
+    shader.startShader();
+    //Send uniform data to shader
+    shader.setUniform1i("tex", model.textures[0]);
+    shader.setUniform1f("time", (GLfloat) glfwGetTime());
+    shader.setUniform1i("hasTexture", 1);
     /*Render*/
-    glBindVertexArray(model.GetvaoID());
-//    glEnableVertexAttribArray(0);
-//    glEnableVertexAttribArray(1);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, model.getTex());
-    glDrawArrays(GL_TRIANGLES, 0, model.GetnumVertices());
-//    glDisableVertexAttribArray(0);
-//    glDisableVertexAttribArray(1);
+    glBindVertexArray(model.vao);
+    glDrawArrays(GL_TRIANGLES, 0, model.numVertices);
     glBindVertexArray(0);
+    shader.stopShader();
 }
 
 void Renderer::prepare(){
