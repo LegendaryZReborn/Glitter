@@ -37,12 +37,24 @@ GLuint Shader::getProgram(){
 }
 
 void Shader::setUniform1i(string identifier, GLint value){
-    glUniform1i(glGetUniformLocation(programID, identifier.c_str()),value);
+    glCall(glUniform1i(glGetUniformLocation(programID, identifier.c_str()),value));
 }
 
 void Shader::setUniform1f(string identifier, GLfloat value){
-    glUniform1f(glGetUniformLocation(programID, identifier.c_str()),value);
+    glCall(glUniform1f(glGetUniformLocation(programID, identifier.c_str()),value));
 }
+
+void Shader::setUniform3fv(string identifier, glm::vec3 value){
+    glCall(glUniform3fv(glGetUniformLocation(programID, identifier.c_str()),1,value_ptr(value)));
+}
+
+void Shader::setUniform4fv(string identifier, glm::vec4 value){
+    glCall(glUniform4fv(glGetUniformLocation(programID, identifier.c_str()),1,value_ptr(value)));
+}
+void Shader::setUniformMatrix4fv(string identifier, glm::mat4 value){
+    glCall(glUniformMatrix4fv(glGetUniformLocation(programID, identifier.c_str()), 1, GL_FALSE, value_ptr(value)));
+}
+
 
 void Shader::cleanUpShader(){
     stopShader();

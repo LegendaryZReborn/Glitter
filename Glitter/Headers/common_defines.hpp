@@ -8,6 +8,8 @@
 #include<glitter.hpp>
 #include<iostream>
 
+//#define NDEBUG
+
 //StackOverflow: https://stackoverflow.com/questions/3767869/adding-message-to-assert
 #ifndef NDEBUG
 #   define ASSERT(condition) \
@@ -20,7 +22,7 @@
         } \
     } while (false)
 #else
-#   define ASSERT(condition, message) do { } while (false)
+#   define ASSERT(condition) do { } while (false)
 #endif
 
 #ifndef DISABLE_GLCALL
@@ -28,7 +30,7 @@
         x;\
         ASSERT(glLog())
 #else
-#   define glCall(x) do { } while (false)
+#   define glCall(x) x
 #endif
 
 static void clearErrors()
@@ -36,15 +38,19 @@ static void clearErrors()
     while(glGetError());
 }
 
-/*Will call the macro assert to interrupt compiler if
-there is an error*/
 static bool glLog(){
 
-    if(GLenum err  = glGetError() != GL_NO_ERROR) {
+    GLenum err;
+    if((err  = glGetError()) != GL_NO_ERROR) {
         std::cerr << "ERROR::OPENGL[" << err << "] - ";
         return false;
     }
 
    return true;
 }
+
+#define EXPAND_MACRO(x) EXPAND_MACRO2(x)
+#define EXPAND_MACRO2(y) #y
+
 #endif //GLITTER_COMMON_DEFINES_H
+

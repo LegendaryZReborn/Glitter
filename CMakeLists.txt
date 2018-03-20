@@ -43,6 +43,7 @@ file(GLOB PROJECT_SHADERS Glitter/Shaders/*.comp
                           Glitter/Shaders/*.frag
                           Glitter/Shaders/*.geom
                           Glitter/Shaders/*.vert)
+						  
 file(GLOB PROJECT_CONFIGS CMakeLists.txt
                           Readme.md
                          .gitattributes
@@ -56,7 +57,10 @@ source_group("Vendors" FILES ${VENDORS_SOURCES})
 
 
 add_definitions(-DGLFW_INCLUDE_NONE
-                -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
+                -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"
+                -DSHADERS=${PROJECT_SOURCE_DIR}/Glitter/Shaders/
+                -DTEXTURES=${PROJECT_SOURCE_DIR}/Glitter/Textures/
+                -DMODELS=${PROJECT_SOURCE_DIR}/Glitter/Models/)
 	
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
                                ${PROJECT_SHADERS} ${PROJECT_CONFIGS}

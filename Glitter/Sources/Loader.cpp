@@ -1,14 +1,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include "Loader.hpp"
-#include "common_defines.hpp"
 #include <iostream>
 
 Loader::Loader(){
 }
 
 
-void Loader::loadToVao(SimpleModel& model, Shader& shader){
+void Loader::loadToVao(SimpleModel& model){
     float *data;
     vector<glm::vec4> vertices, normals;
     vector<glm::vec2> uVs;
@@ -18,16 +17,15 @@ void Loader::loadToVao(SimpleModel& model, Shader& shader){
     normals = model.normals;
     uVs = model.uVs;
 
-    shader.startShader();
     vaoID = createVao();
     data = &vertices.data()->x;
     storeDataInVao(0, 4, data, vertices.size() * 4);
     data = &uVs.data()->x;
     storeDataInVao(1, 2, data, uVs.size() * 2);
+    data = &normals.data()->x;
+    storeDataInVao(2, 4, data, normals.size() * 4);
     glBindVertexArray(0);
 
-    model.textures.push_back(loadTexture("goku"));
-    shader.stopShader();
     model.vao = vaoID;
 
 }
@@ -56,8 +54,8 @@ void Loader::storeDataInVao(GLuint attributeNum, int size, float* data, int dSiz
 }
 
 
-GLuint Loader::loadTexture(string filepath){
-    string full_path = "Textures\\" + filepath + ".jpg";
+GLuint Loader::loadTexture(string filename){
+    string full_path = textures_dir + filename;
     GLint width, height, comp;
     unsigned char* image = stbi_load(full_path.c_str(), &width, &height, &comp, STBI_rgb_alpha);
 
@@ -94,7 +92,7 @@ GLuint Loader::loadTexture(string filepath){
 
 }
 
-void Loader::loadModelFromFile(string path, vector<SimpleModel>& sModels) {
+void Loader::loadModelFromFile(string path, CompositeModel& cModel) {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals
                                                    | aiProcess_FlipUVs);
@@ -106,6 +104,8 @@ void Loader::loadModelFromFile(string path, vector<SimpleModel>& sModels) {
         return;
     }
 
+    cModel.directory = path.substr(0, path.find_last_of('/'));
+
     /*Take each of the scenes meshes and create a simple model with the meshes data
      * and add it to the vector sModels*/
     for(int i = 0; i < scene->mNumMeshes; ++i){
@@ -116,7 +116,7 @@ void Loader::loadModelFromFile(string path, vector<SimpleModel>& sModels) {
             material = scene->mMaterials[mesh->mMaterialIndex];
 
         //Process mesh into a SimpleModel and add it to sModels
-       sModels.push_back(processMesh(mesh, material));
+       cModel.sModels.push_back(processMesh(mesh, material));
     }
 }
 
@@ -125,6 +125,7 @@ SimpleModel Loader::processMesh(aiMesh *mesh, aiMaterial* material){
     vector<glm::vec4> vertices, normals;
     vector<glm::vec2> uVs;
     vector<GLuint> textures, indicies;
+    Material m;
 
     /*Get the vertices, normals and uvs*/
     for(int i = 0; i < mesh->mNumVertices; ++i){
@@ -156,29 +157,36 @@ SimpleModel Loader::processMesh(aiMesh *mesh, aiMaterial* material){
     if(material) {
         /*Get Material data*/
         aiColor4D aiColor;
-        GLfloat shininess;
-        glm::vec3 ambient, diffuse, specular, emission;
 
         aiGetMaterialColor(material, AI_MATKEY_COLOR_AMBIENT, &aiColor);
-        ambient = glm::vec3(aiColor.r, aiColor.g, aiColor.b);
+        m.ambient = glm::vec3(aiColor.r, aiColor.g, aiColor.b);
         aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &aiColor);
-        diffuse = glm::vec3(aiColor.r, aiColor.g, aiColor.b);
+        m.diffuse = glm::vec3(aiColor.r, aiColor.g, aiColor.b);
         aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, &aiColor);
-        specular = glm::vec3(aiColor.r, aiColor.g, aiColor.b);
+        m.specular = glm::vec3(aiColor.r, aiColor.g, aiColor.b);
         aiGetMaterialColor(material, AI_MATKEY_COLOR_EMISSIVE, &aiColor);
-        emission = glm::vec3(aiColor.r, aiColor.g, aiColor.b);
-        aiGetMaterialFloat(material, AI_MATKEY_SHININESS, &shininess);
+        m.emission = glm::vec3(aiColor.r, aiColor.g, aiColor.b);
+        aiGetMaterialFloat(material, AI_MATKEY_SHININESS, &m.shininess);
 
         /*Get Texture data */
         for(int i = 0; i < material->GetTextureCount(aiTextureType_DIFFUSE); ++i){
             aiString p;
             material->GetTexture(aiTextureType_DIFFUSE, i, &p);
-            textures.push_back(loadTexture(p.C_Str()));
+
+            //clean the path for only the filename if necessary
+            string filename = p.C_Str();
+            filename = "/" + filename;
+            size_t pos = filename.rfind('/');
+
+            if(pos != string::npos)
+                filename = filename.substr(pos + 1, filename.size() - pos + 1);
+
+            cout << filename << endl;
+            textures.push_back(loadTexture(filename));
         }
     }
 
-
-    return SimpleModel(vertices, normals, uVs, indicies, textures);
+    return SimpleModel(vertices, normals, uVs, indicies, textures, m);
 }
 
 void Loader::cleanUp(){

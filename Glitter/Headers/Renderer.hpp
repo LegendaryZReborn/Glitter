@@ -1,5 +1,6 @@
 #ifndef RENDERER_H
 #define RENDERER_H
+#include <string>
 
 #include "SimpleModel.hpp"
 #include "Shader.hpp"

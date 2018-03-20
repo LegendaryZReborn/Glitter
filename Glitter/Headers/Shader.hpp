@@ -1,11 +1,11 @@
 #ifndef SHADER_H
 #define SHADER_H
-#include<glad/glad.h>
+#include<glitter.hpp>
 #include <GLFW/glfw3.h>
 #include <string>
 #include <fstream>
 #include <iostream>
-
+#include <common_defines.hpp>
 using namespace std;
 
 class Shader{
@@ -19,7 +19,11 @@ class Shader{
         GLuint getProgram();
         void setUniform1i(string identifier, GLint value);
         void setUniform1f(string identifier, GLfloat value);
-        void cleanUpShader();
+        void setUniform3fv(string identifier, glm::vec3 value);
+        void setUniform4fv(string identifier, glm::vec4 value);
+        void setUniformMatrix4fv(string identifier, glm::mat4 value);
+
+         void cleanUpShader();
 
     protected:
         GLuint programID;
